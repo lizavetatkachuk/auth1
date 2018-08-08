@@ -14,6 +14,8 @@ namespace Auth1
     {
         protected void Application_Start()
         {
+            System.Data.Entity.Database.SetInitializer(
+    new Auth1.Models.OrdersContextInitializer());
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);

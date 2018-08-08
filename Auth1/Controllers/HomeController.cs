@@ -12,7 +12,7 @@ namespace Auth1.Controllers
         [Authorize(Roles = "admin")]
         public ActionResult Admin()
         {
-            string apiUri = Url.HttpRouteUrl("DefaultApi", new { controller = "admin", });
+            string apiUri = Url.HttpRouteUrl("Default", new { controller = "admin", });
             ViewBag.ApiUrl = new Uri(Request.Url, apiUri).AbsoluteUri.ToString();
 
             return View();

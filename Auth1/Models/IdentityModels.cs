@@ -31,5 +31,7 @@ namespace Auth1.Models
         {
             return new ApplicationDbContext();
         }
+
+        public System.Data.Entity.DbSet<Auth1.Models.Product> Products { get; set; }
     }
 }
