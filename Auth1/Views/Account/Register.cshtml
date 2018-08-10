@@ -7,6 +7,7 @@
 
 @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
 {
+   @Html.HiddenFor(model => model.UserRole)
     @Html.AntiForgeryToken()
     <h4>Создайте новую учетную запись.</h4>
     <hr />
@@ -29,19 +30,6 @@
             @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
         </div>
     </div>
-    <div class="form-group">
-        @Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-md-2 control-label" })
-        <div class="col-md-10">
-            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
-        </div>
-    </div>
-    /*<div class="form-group">
-        @Html.LabelFor(m => m.UserRole, new { @class = "col-md-2 control-label" })
-        <div class="col-md-10">
-            @Html.RadioButtonFor(m => m.UserRole, "admin", new { @class = "radio-inline" })@Html.Label("Administrator")
-            @Html.RadioButtonFor(m => m.UserRole, "user", new { @class = "radio-inline" })@Html.Label("User")
-        </div>
-    </div>*/
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
             <input type="submit" class="btn btn-default" value="Регистрация" />

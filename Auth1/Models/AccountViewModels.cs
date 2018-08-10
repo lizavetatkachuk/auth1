@@ -68,10 +68,8 @@ namespace Auth1.Models
         [EmailAddress]
         [Display(Name = "Адрес электронной почты")]
         public string Email { get; set; }
-
-        [Required]
-        [EmailAddress]
-        [Display(Name = "Ваша роль в системе")]
+    
+        [Display(Name = "Role")]
         public string UserRole { get; set; }
 
         [Required]

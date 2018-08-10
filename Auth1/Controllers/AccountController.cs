@@ -10,6 +10,7 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Auth1.Models;
 
+
 namespace Auth1.Controllers
 {
     [Authorize]
@@ -165,11 +166,10 @@ namespace Auth1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
-
-
+            
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, UserRole=model.UserRole };
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -187,6 +187,7 @@ namespace Auth1.Controllers
                 }
                 AddErrors(result);
             }
+            var errors = ModelState.Values.SelectMany(v => v.Errors);
             return RedirectToAction("Index", "Home");
         }
 

@@ -1,31 +1,171 @@
 ﻿@{
-    ViewBag.Title = "Home Page";
+    ViewBag.Title = "E-commerce";
 }
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+<div class="content">
+    <!-- List of products -->
+    <div class="float-left">
+        <h1>Products</h1>
+        <ul id="products"></ul>
+    </div>
+
+    <!-- Cart -->
+    <div id="cart" class="float-right">
+        <h1>Your Cart</h1>
+        <table class="details ui-widget-content"></table>
+        <input type="button" value="Create Order" />
+    </div>
 </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+<div id="orders-area" class="content">
+    <!-- List of orders -->
+    <div class="float-left">
+        <h1>Your Orders</h1>
+        <ul id="orders"></ul>
     </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+
+    <!-- Order Details -->
+    <div id="order-details" class="float-right">
+        <h2>Order #<span></span></h2>
+        <table class="details ui-widget-content"></table>
+        <p>Total: <span></span></p>
     </div>
 </div>
+@section Scripts {
+    <script type="text/javascript" src="@Url.Content("~/Scripts/knockout-2.1.0.js")"></script>
+    <script type="text/javascript">
+        function AppViewModel() {
+            var self = this;
+            self.loggedIn = @(Request.IsAuthenticated ? "true" : "false");
+            self.products = ko.observableArray();
+            self.cart = ko.observableArray();
+            self.orders = ko.observableArray();
+            self.details = ko.observable();
+            function ProductViewModel(root, product) {
+                var self = this;
+                self.ProductId = product.Id;
+                self.Name = product.Name;
+                self.Price = product.Price;
+                self.Quantity = ko.observable(0);
+
+                self.addItemToCart = function () {
+                    var qty = self.Quantity();
+                    if (qty == 0) {
+                        root.cart.push(self);
+                    }
+                    self.Quantity(qty + 1);
+                };
+
+                self.removeAllFromCart = function () {
+                    self.Quantity(0);
+                    root.cart.remove(self);
+                };
+            }
+            function OrderDetailsViewModel(order) {
+                var self = this;
+                self.items = ko.observableArray();
+                self.Id = order.Id;
+
+                self.total = ko.computed(function () {
+                    var sum = 0;
+                    $.each(self.items(), function (index, item) {
+                        sum += item.Price * item.Quantity;
+                    });
+                    return '$' + sum.toFixed(2);
+                });
+
+                $.getJSON("/api/orders/" + order.Id, function (order) {
+                    $.each(order.Details, function (index, item) {
+                        self.items.push(item);
+                    })
+                });
+            };
+            self.resetCart = function () {
+                var items = self.cart.removeAll();
+                $.each(items, function (index, product) {
+                    product.Quantity(0);
+                });
+            }
+
+            self.getDetails = function (order) {
+                self.details(new OrderDetailsViewModel(order));
+            }
+
+            self.createOrder = function () {
+                var jqxhr = $.ajax({
+                    type: 'POST',
+                    url: "api/orders",
+                    contentType: 'application/json; charset=utf-8',
+                    data: ko.toJSON({ Details: self.cart }),
+                    dataType: "json",
+                    success: function (newOrder) {
+                        self.resetCart();
+                        self.orders.push(newOrder);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        self.errorMessage(errorThrown);
+                    }
+                });
+            };
+        }
+
+    $(document).ready(function () {
+        ko.applyBindings(new AppViewModel());
+    });
+
+    </script>
+    <ul id="products" data-bind="foreach: products">
+        <li>
+            <div>
+                <span data-bind="text: Name"></span>
+                <span class="price" data-bind="text: '$' + Price"></span>
+            </div>
+            <div data-bind="if: $parent.loggedIn">
+                <button data-bind="click: addItemToCart">Add to Order</button>
+            </div>
+        </li>
+    </ul>
+    <div id="cart" class="float-right" data-bind="visible: cart().length > 0">
+        <h1>Your Cart</h1>
+        <table class="details ui-widget-content">
+            <thead>
+                <tr><td>Item</td><td>Price</td><td>Quantity</td><td></td></tr>
+            </thead>
+            <tbody data-bind="foreach: cart">
+                <tr>
+                    <td><span data-bind="text: $data.Name"></span></td>
+                    <td>$<span data-bind="text: $data.Price"></span></td>
+                    <td class="qty"><span data-bind="text: $data.Quantity()"></span></td>
+                    <td><a href="#" data-bind="click: removeAllFromCart">Remove</a></td>
+                </tr>
+            </tbody>
+        </table>
+        <input type="button" data-bind="click: createOrder" value="Create Order" />
+        <h1>Your Orders</h1>
+        <ul id="orders" data-bind="foreach: orders">
+            <li class="ui-widget-content">
+                <a href="#" data-bind="click: $root.getDetails">
+                    Order # <span data-bind="text: $data.Id"></span>
+                </a>
+            </li>
+        </ul>
+        <div id="order-details" class="float-right" data-bind="if: details()">
+        <h2>Order #<span data-bind="text: details().Id"></span></h2>
+        <table class="details ui-widget-content">
+            <thead>
+                <tr><td>Item</td><td>Price</td><td>Quantity</td><td>Subtotal</td></tr>
+            </thead>
+            <tbody data-bind="foreach: details().items">
+                <tr>
+                    <td><span data-bind="text: $data.Product"></span></td>
+                    <td><span data-bind="text: $data.Price"></span></td>
+                    <td><span data-bind="text: $data.Quantity"></span></td>
+                    <td>
+                        <span data-bind="text: ($data.Price * $data.Quantity).toFixed(2)"></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Total: <span data-bind="text: details().total"></span></p>
+    </div>
+    }
