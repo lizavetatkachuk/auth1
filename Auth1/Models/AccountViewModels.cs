@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace Auth1.Models
 {
@@ -68,11 +69,12 @@ namespace Auth1.Models
         [EmailAddress]
         [Display(Name = "Адрес электронной почты")]
         public string Email { get; set; }
-    
+
         [Display(Name = "Role")]
         public string UserRole { get; set; }
 
-        [Required]
+        [Required]   
+        [RegularExpression (@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\w)(?=.*\d).*$",ErrorMessage ="Пароль должен содержать как минимум 1 символ, 1 цифру, 1 букву нижнего регистра, 1 букву верхнего регистра")]
         [StringLength(100, ErrorMessage = "Значение {0} должно содержать не менее {2} символов.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Пароль")]
@@ -91,7 +93,6 @@ namespace Auth1.Models
         [Display(Name = "Адрес электронной почты")]
         public string Email { get; set; }
 
-        [Required]
         [StringLength(100, ErrorMessage = "Значение {0} должно содержать не менее {2} символов.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Пароль")]

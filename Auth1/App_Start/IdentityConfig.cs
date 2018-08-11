@@ -12,6 +12,7 @@ using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using Auth1.Models;
 using System.Net.Mail;
+using Auth1.IdentityExtensions;
 
 namespace Auth1
 {
@@ -67,16 +68,8 @@ namespace Auth1
                 AllowOnlyAlphanumericUserNames = false,
                 RequireUniqueEmail = true
             };
-
             // Configure validation logic for passwords
-            manager.PasswordValidator = new PasswordValidator
-            {
-                RequiredLength = 6,
-                RequireNonLetterOrDigit = true,
-                RequireDigit = true,
-                RequireLowercase = true,
-                RequireUppercase = true,
-            };
+            manager.PasswordValidator = new CustomPasswordValidator(6);          
 
             // Configure user lockout defaults
             manager.UserLockoutEnabledByDefault = true;
