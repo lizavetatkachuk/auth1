@@ -1,6 +1,8 @@
-﻿@{
-    ViewBag.Title = "E-commerce";
-    Layout = "~/Views/Shared/_Layout.cshtml";}
+﻿
+@{
+    ViewBag.Title = "Yourcart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
@@ -15,14 +17,6 @@
         font-family: "Montserrat", sans-serif;
     }
 </style>
-<div class="content">
-    <!-- List of products -->
-    <div class="float-left">
-        <h1>Products</h1>
-        <ul id="products"></ul>
-    </div>
-
-    
 @section Scripts {
     <script type="text/javascript" src="@Url.Content("~/Scripts/knockout-2.1.0.js")"></script>
     <script type="text/javascript">
@@ -33,7 +27,7 @@
             self.cart = ko.observableArray();
             self.orders = ko.observableArray();
             self.details = ko.observable();
-          
+
             function ProductViewModel(root, product) {
                 var self = this;
                 self.ProductId = product.Id;
@@ -73,7 +67,7 @@
                     })
                 });
             };
-            
+
             self.resetCart = function () {
                 var items = self.cart.removeAll();
                 $.each(items, function (index, product) {
@@ -114,18 +108,25 @@
         ko.applyBindings(new AppViewModel());
     });
 
-    </script>}
+    </script>
+    }
+    <div id="cart" class="float-right" data-bind="visible: cart().length > 0">
+        <h1>Your Cart</h1>
+        <table class="details ui-widget-content">
+            <thead>
+                <tr><td>Item</td><td>Price</td><td>Quantity</td><td></td></tr>
+            </thead>
+            <tbody data-bind="foreach: cart">
+                <tr>
+                    <td><span data-bind="text: $data.Name"></span></td>
+                    <td>$<span data-bind="text: $data.Price"></span></td>
+                    <td class="qty"><span data-bind="text: $data.Quantity()"></span></td>
+                    <td><a href="#" data-bind="click: removeAllFromCart">Remove</a></td>
+                </tr>
+            </tbody>
+        </table>
+        <input type="button" data-bind="click: createOrder" value="Create Order" />
+    </div>
 
-    <ul id="products" data-bind="foreach: products">
-        <li>
-            <div>
-                <span data-bind="text: Name"></span>
-                <span class="price" data-bind="text: '$' + Price"></span>
-            </div>
-            <div data-bind="if: $parent.loggedIn">
-                <button data-bind="click: addItemToCart">Add to Order</button>
-            </div>
-        </li>
-    </ul>
-      
+
 

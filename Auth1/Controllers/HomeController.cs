@@ -21,6 +21,17 @@ namespace Auth1.Controllers
         {
             return View();
         }
-        
+        public ActionResult Yourorder()
+        {
+            return View();
+        }
+        public ActionResult OrderDetails()
+        {
+            return View();
+        }
+        public ActionResult Yourcart()
+        {
+            return View();
+        }
     }
 }
